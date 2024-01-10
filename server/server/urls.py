@@ -17,8 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from authentication import urls
+from match_face import urls as faceUrl
 
 urlpatterns = [
     path('', include(urls)),
+    path('', include(faceUrl)),
     path('admin/', admin.site.urls),
 ]
