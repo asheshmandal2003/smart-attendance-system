@@ -1,6 +1,6 @@
 from django.urls import path
-from . import views
+from .views import MatchFace
 
 urlpatterns = [
-    path("", views.matchFace, name="match face")
+    path("match-face", MatchFace.as_view(), name="matchFace")
 ]
