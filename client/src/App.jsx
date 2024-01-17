@@ -9,8 +9,6 @@ function App() {
     <Box
       sx={{
         width: "100%",
-        display: "flex",
-        justifyContent: "center",
       }}
     >
       <Routes>

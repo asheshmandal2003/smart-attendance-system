@@ -1,76 +1,93 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Webcam from "react-webcam";
-import axios from "axios";
-import { Box, Card, Stack } from "@mui/material";
+import { Button, Card, useMediaQuery } from "@mui/material";
+import {
+  AddAPhoto,
+  AddAPhotoOutlined,
+  CameraAlt,
+  Send,
+} from "@mui/icons-material";
+import { FlexCenter } from "../partials/FlexCenter";
+import { FlexBetween } from "../partials/FlexBetween";
 
 const videoConstraints = {
-  width: 800,
-  height: 800,
+  width: 1280,
+  height: 720,
   facingMode: "user",
 };
 
-function getCookie(name) {
-  var cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    var cookies = document.cookie.split(";");
-    for (var i = 0; i < cookies.length; i++) {
-      var cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === name + "=") {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
-
-export default function Camera() {
-  const [img, setImg] = useState(null);
-  const webcamRef = useRef(null);
-  const capture = useCallback(async () => {
-    const imgSrc = webcamRef.current.getScreenshot();
-    setImg(imgSrc);
-  }, [webcamRef]);
-
-  async function matchFace() {
-    console.log("OK I'm called");
-    const formData = new FormData();
-    formData.append("img", img);
-    await axios({
-      method: "POST",
-      url: "http://localhost:8000/match-face",
-      data: formData,
-      withCredentials: true,
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFTOKEN": getCookie("csrftoken"),
-      },
-    })
-      .then((result) => {
-        console.log(result.data);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
-  }
+export default function Camera({ img, setImg, webcamRef, capture, matchFace }) {
+  const [captureImg, setCaptureImg] = useState(false);
+  const phone = useMediaQuery("(max-width:600px)");
 
   return (
-    <Card>
-      <Stack spacing={4}>
-        <Webcam
-          audio={false}
-          height={400}
-          width={600}
-          ref={webcamRef}
-          screenshotFormat="image/jpeg"
-          videoConstraints={videoConstraints}
-        />
-        <Box>
-          <button onClick={capture}>Capture</button>
-          {img !== null && <img src={img} alt="image" />}
-          <button onClick={matchFace}>Upload</button>
-        </Box>
-      </Stack>
+    <Card sx={{ width: phone ? "90%" : 600, mt: 5, mb: phone ? 0 : 7, pb: 4 }}>
+      {img === null ? (
+        <FlexCenter flexDirection="column" alignItems="center">
+          {!captureImg ? (
+            <>
+              <AddAPhotoOutlined
+                sx={{
+                  height: phone ? "60%" : 300,
+                  width: phone ? "60%" : 300,
+                  color: "#9e9e9e",
+                }}
+              />
+              <Button
+                variant="contained"
+                sx={{ mt: 4, width: phone ? "60%" : "40%" }}
+                endIcon={<AddAPhotoOutlined />}
+                onClick={() => setCaptureImg(!captureImg)}
+              >
+                Take Photo
+              </Button>
+            </>
+          ) : (
+            <>
+              <Webcam
+                audio={false}
+                height={400}
+                width={600}
+                ref={webcamRef}
+                screenshotFormat="image/jpeg"
+                videoConstraints={videoConstraints}
+              />
+              <Button
+                variant="contained"
+                endIcon={<AddAPhoto />}
+                onClick={capture}
+                sx={{ width: "40%" }}
+              >
+                Capture
+              </Button>
+            </>
+          )}
+        </FlexCenter>
+      ) : (
+        <FlexCenter flexDirection="column" alignItems="center">
+          <img src={img} alt="photo" width={600} height={350} />
+          <FlexBetween width="80%" p={4}>
+            <Button
+              variant="contained"
+              color="success"
+              endIcon={<Send />}
+              sx={{ width: "45%" }}
+              onClick={matchFace}
+            >
+              Upload
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              endIcon={<CameraAlt />}
+              sx={{ width: "45%" }}
+              onClick={() => setImg(null)}
+            >
+              Retake
+            </Button>
+          </FlexBetween>
+        </FlexCenter>
+      )}
     </Card>
   );
 }

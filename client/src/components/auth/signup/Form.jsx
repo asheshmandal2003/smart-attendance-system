@@ -168,9 +168,12 @@ export default function Form({ phone, signup }) {
                 {!formik.values.picture ? (
                   <FlexBetween>
                     <Typography color="#757575" variant="body2">
-                      Drag and drop your picture here
+                      Add your picture here
                     </Typography>
-                    <CloudUploadOutlined />
+                    <CloudUploadOutlined
+                      size={phone ? "small" : "normal"}
+                      sx={{ color: "#757575" }}
+                    />
                   </FlexBetween>
                 ) : (
                   <FlexBetween>
