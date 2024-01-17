@@ -6,10 +6,12 @@ from django.contrib.auth import authenticate, login
 
 class StudentView(APIView):
     def post(self, req):
+        print(req.data)
         serializer = UserSerializer(data=req.data)
         if serializer.is_valid(): 
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        print(serializer._errors)
         return Response(serializer._errors, status=status.HTTP_400_BAD_REQUEST)
 
 

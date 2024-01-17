@@ -20,8 +20,15 @@ import Dropzone from "react-dropzone";
 import { FlexBetween } from "../../partials/FlexBetween";
 import { useFormik } from "formik";
 import * as yup from "yup";
+import LoadingBtn from "../../partials/LoadingBtn";
 
-export default function Form({ phone, signup }) {
+export default function Form({
+  phone,
+  setBase64Image,
+  registering,
+  setRegistering,
+  signup,
+}) {
   const [visibility, setVisibility] = useState(false);
   const changeVisibility = () => setVisibility(!visibility);
 
@@ -152,9 +159,17 @@ export default function Form({ phone, signup }) {
           <Dropzone
             acceptedFiles=".jpg,.jpeg,.png"
             multiple={false}
-            onDrop={(acceptedFiles) =>
-              formik.setFieldValue("picture", acceptedFiles[0])
-            }
+            onDrop={(acceptedFiles) => {
+              formik.setFieldValue("picture", acceptedFiles[0]);
+              const file = acceptedFiles[0];
+              const reader = new FileReader();
+              reader.onload = () => {
+                const base64String = reader.result.split(",")[1];
+                setBase64Image(base64String);
+              };
+
+              reader.readAsDataURL(file);
+            }}
           >
             {({ getRootProps, getInputProps }) => (
               <Box
@@ -238,13 +253,17 @@ export default function Form({ phone, signup }) {
           {Boolean(formik.touched.password) && formik.errors.password}
         </Typography>
       </FormControl>
-      <Button
-        size={phone ? "small" : "normal"}
-        variant="contained"
-        type="submit"
-      >
-        Sign Up
-      </Button>
+      {registering ? (
+        <LoadingBtn loadingTxt="Registering..." btnText="Sign Up" />
+      ) : (
+        <Button
+          size={phone ? "small" : "normal"}
+          variant="contained"
+          type="submit"
+        >
+          Sign Up
+        </Button>
+      )}
     </Stack>
   );
 }
