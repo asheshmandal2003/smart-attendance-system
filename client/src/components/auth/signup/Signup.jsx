@@ -5,6 +5,7 @@ import { FlexCenter } from "../../partials/FlexCenter";
 import { useState } from "react";
 import axios from "axios";
 import { getCookie } from "../../cookie/Csrf";
+import { toast, Bounce } from "react-toastify";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -16,8 +17,8 @@ export default function Signup() {
     setRegistering(true);
     const formdata = new FormData();
     for (let value in values) formdata.append(value, values[value]);
-    // formdata.append("base64Image", base64Image);
-    formdata.delete("picture")
+    formdata.append("face_encoding", base64Image);
+    formdata.delete("picture");
     await axios({
       method: "POST",
       url: `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/signup`,
@@ -28,12 +29,32 @@ export default function Signup() {
       },
     })
       .then((result) => {
-        console.log(result.data);
+        toast.success("You're successfully registered!", {
+          position: "top-right",
+          autoClose: 6000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+        });
         navigate("/");
       })
       .catch((err) => {
         setRegistering(false);
-        console.log(err.message);
+        toast.error(`${err.message}!`, {
+          position: "top-right",
+          autoClose: 6000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+        });
       });
   };
   return (
@@ -59,7 +80,6 @@ export default function Signup() {
           phone={phone}
           setBase64Image={setBase64Image}
           registering={registering}
-          setRegistering={setRegistering}
           signup={signup}
         />
         <Typography mt={5}>

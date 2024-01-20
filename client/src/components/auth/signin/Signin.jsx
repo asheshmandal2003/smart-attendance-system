@@ -2,12 +2,59 @@ import Form from "./Form";
 import { Card, Typography, useMediaQuery } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { FlexCenter } from "../../partials/FlexCenter";
+import { useState } from "react";
+import axios from "axios";
+import { getCookie } from "../../cookie/Csrf";
+import { toast, Bounce } from "react-toastify";
 
 export default function Signin() {
   const navigate = useNavigate();
   const phone = useMediaQuery("(max-width:600px)");
+  const [logging, setLogging] = useState(false);
 
-  const signin = async () => {};
+  const signin = async (values) => {
+    console.log("Hello");
+    setLogging(true);
+    const formdata = new FormData();
+    for (let value in values) formdata.append(value, values[value]);
+    await axios({
+      method: "POST",
+      url: `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/signin`,
+      data: formdata,
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFTOKEN": getCookie("csrftoken"),
+      },
+    })
+      .then((result) => {
+        toast.success("Welocme back!", {
+          position: "top-right",
+          autoClose: 6000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+        });
+        navigate("/");
+      })
+      .catch((err) => {
+        setLogging(false);
+        toast.error(`${err.message}!`, {
+          position: "top-right",
+          autoClose: 6000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          transition: Bounce,
+        });
+      });
+  };
 
   return (
     <FlexCenter>
@@ -28,7 +75,7 @@ export default function Signin() {
         <Typography variant="h5" mb={4} fontWeight={600}>
           Sign In
         </Typography>
-        <Form phone={phone} signin={signin} />
+        <Form phone={phone} logging={logging} signin={signin} />
         <Typography mt={5}>
           Don't have an account?{" "}
           <Typography

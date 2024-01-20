@@ -12,8 +12,9 @@ import { useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useFormik } from "formik";
 import * as yup from "yup";
+import LoadingBtn from "../../partials/LoadingBtn";
 
-export default function Form({ phone, signin }) {
+export default function Form({ phone, signin, logging }) {
   const [visibility, setVisibility] = useState(false);
   const changeVisibility = () => setVisibility(!visibility);
 
@@ -29,14 +30,13 @@ export default function Form({ phone, signin }) {
   const validationSchema = yup.object({
     username: yup
       .string()
-      .min(13, "Invalid ID!")
-      .max(13, "Invalid ID!")
-      .required("ID is required!"),
-    picture: yup.string().required("Photo is required!"),
+      .min(13, "⚠️ Invalid ID!")
+      .max(13, "⚠️ Invalid ID!")
+      .required("⚠️ ID is required!"),
     password: yup
       .string()
-      .min(8, "Password must contain 8 characters!")
-      .required("Password is required!"),
+      .min(8, "⚠️ Password must contain 8 characters!")
+      .required("⚠️ Password is required!"),
   });
 
   const formik = useFormik({
@@ -104,13 +104,17 @@ export default function Form({ phone, signin }) {
           {Boolean(formik.touched.password) && formik.errors.password}
         </Typography>
       </FormControl>
-      <Button
-        size={phone ? "small" : "normal"}
-        variant="contained"
-        type="submit"
-      >
-        Sign In
-      </Button>
+      {logging ? (
+        <LoadingBtn btnText="Log In" />
+      ) : (
+        <Button
+          size={phone ? "small" : "normal"}
+          variant="contained"
+          type="submit"
+        >
+          Sign In
+        </Button>
+      )}
     </Stack>
   );
 }

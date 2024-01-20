@@ -1,0 +1,17 @@
+asgiref==3.7.2
+click==8.1.7
+cmake==3.28.1
+Django==5.0.1
+django-cors-headers==4.3.1
+django-environ==0.11.2
+djangorestframework==3.14.0
+dlib==19.24.99
+face-recognition==1.3.0
+face_recognition_models==0.3.0
+numpy==1.26.3
+pillow==10.2.0
+psycopg==3.1.17
+psycopg2-binary==2.9.9
+pytz==2023.3.post1
+sqlparse==0.4.4
+typing_extensions==4.9.0

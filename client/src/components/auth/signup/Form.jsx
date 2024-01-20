@@ -22,13 +22,7 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 import LoadingBtn from "../../partials/LoadingBtn";
 
-export default function Form({
-  phone,
-  setBase64Image,
-  registering,
-  setRegistering,
-  signup,
-}) {
+export default function Form({ phone, setBase64Image, registering, signup }) {
   const [visibility, setVisibility] = useState(false);
   const changeVisibility = () => setVisibility(!visibility);
 
@@ -44,25 +38,27 @@ export default function Form({
   const validationSchema = yup.object({
     first_name: yup
       .string()
-      .min(3, "First name must contain 3 characters!")
-      .max(50, "First name can have max 50 characters!")
-      .required("First name is required!"),
+      .min(3, "⚠️ First name must contain 3 characters!")
+      .max(50, "⚠️ First name can have max 50 characters!")
+      .required("⚠️ First name is required!"),
     last_name: yup
       .string()
-      .min(3, "Last name must contain 3 characters!")
-      .max(50, "Last name can have max 50 characters!")
-      .required("Last name is required!"),
+      .min(3, "⚠️ Last name must contain 3 characters!")
+      .max(50, "⚠️ Last name can have max 50 characters!")
+      .required("⚠️ Last name is required!"),
     username: yup
       .string()
-      .min(13, "Invalid ID!")
-      .max(13, "Invalid ID!")
-      .required("ID is required!"),
-    picture: yup.string().required("Photo is required!"),
-    email: yup.string().email("Invalid email!").required("Email is required!"),
+      .max(50, "⚠️ Username can have max 50 characters!")
+      .required("⚠️ Username is required!"),
+    picture: yup.string().required("⚠️ Photo is required!"),
+    email: yup
+      .string()
+      .email("⚠️ Invalid email!")
+      .required("⚠️ Email is required!"),
     password: yup
       .string()
       .min(8, "Password must contain 8 characters!")
-      .required("Password is required!"),
+      .required("⚠️ Password is required!"),
   });
 
   const formik = useFormik({
@@ -124,10 +120,10 @@ export default function Form({
         </FormControl>
       </Stack>
       <FormControl>
-        <InputLabel size={phone ? "small" : "normal"}>ID</InputLabel>
+        <InputLabel size={phone ? "small" : "normal"}>Username</InputLabel>
         <OutlinedInput
           fullWidth
-          label="ID"
+          label="Username"
           id="username"
           name="username"
           type="text"
@@ -254,7 +250,7 @@ export default function Form({
         </Typography>
       </FormControl>
       {registering ? (
-        <LoadingBtn loadingTxt="Registering..." btnText="Sign Up" />
+        <LoadingBtn btnText="Register" />
       ) : (
         <Button
           size={phone ? "small" : "normal"}
