@@ -22,7 +22,7 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 import LoadingBtn from "../../partials/LoadingBtn";
 
-export default function Form({ phone, setBase64Image, registering, signup }) {
+export default function Form({ phone, registering, signup }) {
   const [visibility, setVisibility] = useState(false);
   const changeVisibility = () => setVisibility(!visibility);
 
@@ -39,16 +39,16 @@ export default function Form({ phone, setBase64Image, registering, signup }) {
     first_name: yup
       .string()
       .min(3, "⚠️ First name must contain 3 characters!")
-      .max(50, "⚠️ First name can have max 50 characters!")
+      .max(30, "⚠️ First name can have max 30 characters!")
       .required("⚠️ First name is required!"),
     last_name: yup
       .string()
       .min(3, "⚠️ Last name must contain 3 characters!")
-      .max(50, "⚠️ Last name can have max 50 characters!")
+      .max(30, "⚠️ Last name can have max 30 characters!")
       .required("⚠️ Last name is required!"),
     username: yup
       .string()
-      .max(50, "⚠️ Username can have max 50 characters!")
+      .max(30, "⚠️ Username can have max 30 characters!")
       .required("⚠️ Username is required!"),
     picture: yup.string().required("⚠️ Photo is required!"),
     email: yup
@@ -155,17 +155,8 @@ export default function Form({ phone, setBase64Image, registering, signup }) {
           <Dropzone
             acceptedFiles=".jpg,.jpeg,.png"
             multiple={false}
-            onDrop={(acceptedFiles) => {
-              formik.setFieldValue("picture", acceptedFiles[0]);
-              const file = acceptedFiles[0];
-              const reader = new FileReader();
-              reader.onload = () => {
-                const base64String = reader.result.split(",")[1];
-                setBase64Image(base64String);
-              };
-
-              reader.readAsDataURL(file);
-            }}
+            onDrop={(acceptedFiles) => formik.setFieldValue("picture", acceptedFiles[0])
+            }
           >
             {({ getRootProps, getInputProps }) => (
               <Box

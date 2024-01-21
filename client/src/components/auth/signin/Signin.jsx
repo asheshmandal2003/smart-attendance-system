@@ -13,7 +13,6 @@ export default function Signin() {
   const [logging, setLogging] = useState(false);
 
   const signin = async (values) => {
-    console.log("Hello");
     setLogging(true);
     const formdata = new FormData();
     for (let value in values) formdata.append(value, values[value]);
@@ -27,7 +26,7 @@ export default function Signin() {
       },
     })
       .then((result) => {
-        toast.success("Welocme back!", {
+        toast.success(`${result.data.message}`, {
           position: "top-right",
           autoClose: 6000,
           hideProgressBar: false,
@@ -42,7 +41,7 @@ export default function Signin() {
       })
       .catch((err) => {
         setLogging(false);
-        toast.error(`${err.message}!`, {
+        toast.error(`${err.response.data.message}!`, {
           position: "top-right",
           autoClose: 6000,
           hideProgressBar: false,

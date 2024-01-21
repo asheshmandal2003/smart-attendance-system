@@ -19,20 +19,15 @@ export default function Form({ phone, signin, logging }) {
   const changeVisibility = () => setVisibility(!visibility);
 
   const initialValues = {
-    first_name: "",
-    last_name: "",
-    username: "",
-    picture: "",
     email: "",
     password: "",
   };
 
   const validationSchema = yup.object({
-    username: yup
+    email: yup
       .string()
-      .min(13, "⚠️ Invalid ID!")
-      .max(13, "⚠️ Invalid ID!")
-      .required("⚠️ ID is required!"),
+      .max(30, "⚠️ Email can have max 30 characters!")
+      .required("⚠️ Email is required!"),
     password: yup
       .string()
       .min(8, "⚠️ Password must contain 8 characters!")
@@ -53,24 +48,24 @@ export default function Form({ phone, signin, logging }) {
       sx={{ width: phone ? "88%" : "100%" }}
     >
       <FormControl>
-        <InputLabel size={phone ? "small" : "normal"}>Username</InputLabel>
+        <InputLabel size={phone ? "small" : "normal"}>Email</InputLabel>
         <OutlinedInput
           fullWidth
           autoFocus
-          label="Username"
-          id="username"
-          name="username"
+          label="Email"
+          id="email"
+          name="email"
           type="text"
           size={phone ? "small" : "normal"}
-          value={formik.values.username}
+          value={formik.values.email}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           error={
-            Boolean(formik.touched.username) && Boolean(formik.errors.username)
+            Boolean(formik.touched.email) && Boolean(formik.errors.email)
           }
         />
         <Typography color="error" mt={1} variant="caption">
-          {Boolean(formik.touched.username) && formik.errors.username}
+          {Boolean(formik.touched.email) && formik.errors.email}
         </Typography>
       </FormControl>
       <FormControl>

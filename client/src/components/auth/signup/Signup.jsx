@@ -10,52 +10,65 @@ import { toast, Bounce } from "react-toastify";
 export default function Signup() {
   const navigate = useNavigate();
   const phone = useMediaQuery("(max-width:600px)");
-  const [base64Image, setBase64Image] = useState(null);
   const [registering, setRegistering] = useState(false);
 
   const signup = async (values) => {
     setRegistering(true);
-    const formdata = new FormData();
-    for (let value in values) formdata.append(value, values[value]);
-    formdata.append("face_encoding", base64Image);
-    formdata.delete("picture");
+    const formdata1 = new FormData();
+    const formdata2 = new FormData()
+    
+    formdata1.append("file", values["picture"])
+    formdata1.append("upload_preset", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET)
+    formdata1.append("api_key", import.meta.env.VITE_CLOUDINARY_API_KEY)
+
+    for (let value in values) formdata2.append(value, values[value]);
+    formdata2.delete("picture");
+
     await axios({
-      method: "POST",
-      url: `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/signup`,
-      data: formdata,
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFTOKEN": getCookie("csrftoken"),
-      },
+      method: "post",
+      url: `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUD_NAME}/upload`,
+      data: formdata1
     })
-      .then((result) => {
-        toast.success("You're successfully registered!", {
-          position: "top-right",
-          autoClose: 6000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
-        navigate("/");
+    .then(async(res)=>{
+      formdata2.append("img_path", res.data.url)
+      await axios({
+        method: "POST",
+        url: `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/signup`,
+        data: formdata2,
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFTOKEN": getCookie("csrftoken"),
+        },
       })
-      .catch((err) => {
-        setRegistering(false);
-        toast.error(`${err.message}!`, {
-          position: "top-right",
-          autoClose: 6000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
+    })
+    .then((result) => {
+      toast.success("You're successfully registered!", {
+        position: "top-right",
+        autoClose: 6000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
       });
+      navigate("/");
+    })
+    .catch((err) => {
+      setRegistering(false);
+      toast.error(`${err.message}!`, {
+        position: "top-right",
+        autoClose: 6000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        transition: Bounce,
+      });
+    });
   };
   return (
     <FlexCenter>
@@ -78,7 +91,6 @@ export default function Signup() {
         </Typography>
         <Form
           phone={phone}
-          setBase64Image={setBase64Image}
           registering={registering}
           signup={signup}
         />
