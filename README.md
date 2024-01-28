@@ -89,4 +89,4 @@ yarn dev --port 3000
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the [MIT License](https://github.com/asheshmandal2003/smart-attendance-system/blob/main/LICENSE).
