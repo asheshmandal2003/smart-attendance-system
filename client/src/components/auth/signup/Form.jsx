@@ -46,10 +46,6 @@ export default function Form({ phone, registering, signup }) {
       .min(3, "⚠️ Last name must contain 3 characters!")
       .max(30, "⚠️ Last name can have max 30 characters!")
       .required("⚠️ Last name is required!"),
-    username: yup
-      .string()
-      .max(30, "⚠️ Username can have max 30 characters!")
-      .required("⚠️ Username is required!"),
     picture: yup.string().required("⚠️ Photo is required!"),
     email: yup
       .string()
@@ -119,26 +115,6 @@ export default function Form({ phone, registering, signup }) {
           </Typography>
         </FormControl>
       </Stack>
-      <FormControl>
-        <InputLabel size={phone ? "small" : "normal"}>Username</InputLabel>
-        <OutlinedInput
-          fullWidth
-          label="Username"
-          id="username"
-          name="username"
-          type="text"
-          size={phone ? "small" : "normal"}
-          value={formik.values.username}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          error={
-            Boolean(formik.touched.username) && Boolean(formik.errors.username)
-          }
-        />
-        <Typography color="error" mt={1} variant="caption">
-          {Boolean(formik.touched.username) && formik.errors.username}
-        </Typography>
-      </FormControl>
       <Box>
         <Box
           gridColumn="span 4"
@@ -155,7 +131,8 @@ export default function Form({ phone, registering, signup }) {
           <Dropzone
             acceptedFiles=".jpg,.jpeg,.png"
             multiple={false}
-            onDrop={(acceptedFiles) => formik.setFieldValue("picture", acceptedFiles[0])
+            onDrop={(acceptedFiles) =>
+              formik.setFieldValue("picture", acceptedFiles[0])
             }
           >
             {({ getRootProps, getInputProps }) => (

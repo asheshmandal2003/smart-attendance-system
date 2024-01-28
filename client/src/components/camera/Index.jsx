@@ -2,6 +2,7 @@ import Camera from "./Camera";
 import { getCookie } from "../cookie/Csrf";
 import { useCallback, useState, useRef } from "react";
 import axios from "axios";
+import { ErrorAlert, SuccessAlert } from "../partials/Alert";
 
 export default function Index() {
   const [img, setImg] = useState(null);
@@ -27,9 +28,11 @@ export default function Index() {
       },
     })
       .then((result) => {
+        SuccessAlert("Face matches!")
         console.log(result.data);
       })
       .catch((err) => {
+        ErrorAlert(err.response.data.res)
         console.log(err.message);
       });
   }

@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import User
 from .serializers import UserSignupSerializer
+from django.core.serializers import serialize
+from django.http import JsonResponse
 
 class UserSignupView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -20,12 +22,9 @@ class UserSignupView(generics.CreateAPIView):
 
 class LoginView(APIView):
     def post(self, req):
-        try:
-            user = authenticate(request=req, username=req.data['email'], password=req.data['password'])
-            if user is not None:
-                login(req, user)
-                return Response({"message": "You're successfully logged in!"}, status=status.HTTP_200_OK)
-            else:
-                return Response({"message": "User doesn't exist!"}, status=status.HTTP_401_UNAUTHORIZED)
-        except:
-            return Response({'message': 'Access Denied!'}, status=status.HTTP_400_BAD_REQUEST)
+        user = authenticate(request=req, username=req.data['email'], password=req.data['password'])
+        if user is not None:
+            login(req, user)
+            userDetails = User.objects.filter(email=user).values("first_name", "last_name", "email", "img_path").first()
+            return JsonResponse(userDetails, status=status.HTTP_200_OK)
+        return JsonResponse({"message": "User doesn't exist!"}, status=status.HTTP_401_UNAUTHORIZED)

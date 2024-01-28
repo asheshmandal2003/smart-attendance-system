@@ -19,12 +19,12 @@ class UserProfileManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
-    username = models.CharField(max_length=30, unique=True)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=128) 
     img_path = models.CharField()
+    img_public_id=models.CharField()
 
     objects = UserProfileManager()
 
-    USERNAME_FIELD = 'username'
+    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['password', 'img_path']

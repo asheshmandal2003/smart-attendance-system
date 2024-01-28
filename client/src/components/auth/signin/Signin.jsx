@@ -5,7 +5,7 @@ import { FlexCenter } from "../../partials/FlexCenter";
 import { useState } from "react";
 import axios from "axios";
 import { getCookie } from "../../cookie/Csrf";
-import { toast, Bounce } from "react-toastify";
+import { ErrorAlert, SuccessAlert } from "../../partials/Alert";
 
 export default function Signin() {
   const navigate = useNavigate();
@@ -26,32 +26,13 @@ export default function Signin() {
       },
     })
       .then((result) => {
-        toast.success(`${result.data.message}`, {
-          position: "top-right",
-          autoClose: 6000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
+        console.log(result.data)
+        SuccessAlert("You're logged in!");
         navigate("/");
       })
       .catch((err) => {
         setLogging(false);
-        toast.error(`${err.response.data.message}!`, {
-          position: "top-right",
-          autoClose: 6000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          transition: Bounce,
-        });
+        ErrorAlert(err.response.data.message);
       });
   };
 
