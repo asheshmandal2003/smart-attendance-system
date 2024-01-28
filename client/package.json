@@ -16,7 +16,7 @@
     "@mui/icons-material": "^5.15.4",
     "@mui/lab": "^5.0.0-alpha.161",
     "@mui/material": "^5.15.5",
-    "@reduxjs/toolkit": "^2.0.1",
+    "@reduxjs/toolkit": "^2.1.0",
     "axios": "^1.6.5",
     "crypto-hash": "^3.0.0",
     "formik": "^2.4.5",

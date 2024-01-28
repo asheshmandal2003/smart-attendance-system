@@ -17,33 +17,35 @@ def load_img_from_cloudinary(url):
     response.raise_for_status()
     image = Image.open(BytesIO(response.content))
     return image
-
-def face_encoding(image):
-    face_locations = face_recognition.face_locations(image)
-    encoding = face_recognition.face_encodings(image, face_locations)[0]
-    return encoding, face_locations
     
-
 class MatchFace(APIView):
     def post(self, req):
         try:
             decodedImg = decodeImg(req.data["img"])
             unknown_image = face_recognition.load_image_file(decodedImg)
-            unknown_image_encoding, unknown_image_face_location = face_encoding(unknown_image)
+            unknown_image_face_location = face_recognition.face_locations(unknown_image)
             
             if(unknown_image_face_location):
-                userImgPathQuerySet = User.objects.values_list("img_path", flat=True)
+                user = User.objects.filter(email=req.data["email"]).values("img_path").first()
             
-                for img_path in list(userImgPathQuerySet):
-                    userAvatar = load_img_from_cloudinary(img_path)
-                    userAvatar_np = np.array(userAvatar)
-                    
-                    known_image_encoding, known_image_face_location = face_encoding(userAvatar_np)
-                    
+                userAvatar = load_img_from_cloudinary(user["img_path"])
+                userAvatar_np = np.array(userAvatar)
+                
+                known_image_face_location = face_recognition.face_locations(userAvatar_np)
+                
+                if known_image_face_location:
+                    known_image_encoding = face_recognition.face_encodings(face_image=userAvatar_np, known_face_locations=known_image_face_location)[0]
+                    unknown_image_encoding = face_recognition.face_encodings(face_image=unknown_image,  known_face_locations=unknown_image_face_location)[0]
+                        
                     results = face_recognition.compare_faces([known_image_encoding], unknown_image_encoding)
-                    return Response({"res": results}, status=status.HTTP_200_OK)
+                    if results[0] == True:
+                        return Response({"res": "Face matched!"}, status=status.HTTP_200_OK)
+                    else:
+                        return Response({"res": "Face didn't match!"}, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response({"res": "You avatar doesn't contain any face!"}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response({"res": "No face found!"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"res": "No face detected!"}, status=status.HTTP_400_BAD_REQUEST)
         except:
-            return Response({"res": "Something went wrong!"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"res": "Something went wrong!"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     

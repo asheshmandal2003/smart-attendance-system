@@ -2,6 +2,7 @@ import React from "react";
 import { LoadingButton } from "@mui/lab";
 
 export default function LoadingBtn({
+  width,
   btnText,
   loadingTxt,
   pos,
@@ -16,6 +17,7 @@ export default function LoadingBtn({
       endIcon={endIcon}
       startIcon={startIcon}
       variant="contained"
+      sx={{ width: width }}
     >
       {btnText}
     </LoadingButton>

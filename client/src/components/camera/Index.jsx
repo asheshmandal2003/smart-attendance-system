@@ -3,8 +3,11 @@ import { getCookie } from "../cookie/Csrf";
 import { useCallback, useState, useRef } from "react";
 import axios from "axios";
 import { ErrorAlert, SuccessAlert } from "../partials/Alert";
+import { useSelector } from "react-redux";
 
 export default function Index() {
+  const [uploading, setUploading] = useState(false);
+  const { email } = useSelector((state) => state.auth.user);
   const [img, setImg] = useState(null);
   const webcamRef = useRef(null);
 
@@ -14,9 +17,10 @@ export default function Index() {
   }, [webcamRef]);
 
   async function matchFace() {
-    console.log("OK I'm called");
+    setUploading(true);
     const formData = new FormData();
     formData.append("img", img);
+    formData.append("email", email);
     await axios({
       method: "POST",
       url: "http://localhost:8000/match-face",
@@ -28,12 +32,12 @@ export default function Index() {
       },
     })
       .then((result) => {
-        SuccessAlert("Face matches!")
-        console.log(result.data);
+        SuccessAlert(result.data.res);
+        setUploading(false);
       })
       .catch((err) => {
-        ErrorAlert(err.response.data.res)
-        console.log(err.message);
+        ErrorAlert(err.response.data.res);
+        setUploading(false);
       });
   }
   return (
@@ -44,6 +48,7 @@ export default function Index() {
         webcamRef={webcamRef}
         capture={capture}
         matchFace={matchFace}
+        uploading={uploading}
       />
     </>
   );

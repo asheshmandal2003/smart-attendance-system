@@ -8,8 +8,11 @@ import { getCookie } from "../../cookie/Csrf";
 import { UploadImg } from "../../../../cloudinary/UploadImg";
 import { DeleteImg } from "../../../../cloudinary/DeleteImg";
 import { ErrorAlert, SuccessAlert } from "../../partials/Alert";
+import { useDispatch } from "react-redux";
+import { login } from "../../../../state/auth";
 
 export default function Signup() {
+  const dispatch = useDispatch()
   const navigate = useNavigate();
   const phone = useMediaQuery("(max-width:600px)");
   const [registering, setRegistering] = useState(false);
@@ -42,6 +45,7 @@ export default function Signup() {
       },
     })
       .then((response) => {
+        dispatch(login({ user: result.data }));
         SuccessAlert("You're registered successfully!")
         navigate("/");
       })

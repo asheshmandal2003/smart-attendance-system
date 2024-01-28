@@ -9,6 +9,7 @@ import {
 } from "@mui/icons-material";
 import { FlexCenter } from "../partials/FlexCenter";
 import { FlexBetween } from "../partials/FlexBetween";
+import LoadingBtn from "../partials/LoadingBtn";
 
 const videoConstraints = {
   width: 1280,
@@ -16,12 +17,26 @@ const videoConstraints = {
   facingMode: "user",
 };
 
-export default function Camera({ img, setImg, webcamRef, capture, matchFace }) {
+export default function Camera({
+  img,
+  setImg,
+  webcamRef,
+  capture,
+  matchFace,
+  uploading,
+}) {
   const [captureImg, setCaptureImg] = useState(false);
   const phone = useMediaQuery("(max-width:600px)");
 
   return (
-    <Card sx={{ width: phone ? "90%" : 600, mt: 5, mb: phone ? 0 : 7, pb: 4 }}>
+    <Card
+      sx={{
+        width: phone ? "90%" : 600,
+        mt: 5,
+        mb: phone ? 0 : 7,
+        pb: 4,
+      }}
+    >
       {img === null ? (
         <FlexCenter flexDirection="column" alignItems="center">
           {!captureImg ? (
@@ -67,15 +82,24 @@ export default function Camera({ img, setImg, webcamRef, capture, matchFace }) {
         <FlexCenter flexDirection="column" alignItems="center">
           <img src={img} alt="photo" width={600} height={350} />
           <FlexBetween width="80%" p={4}>
-            <Button
-              variant="contained"
-              color="success"
-              endIcon={<Send />}
-              sx={{ width: "45%" }}
-              onClick={matchFace}
-            >
-              Upload
-            </Button>
+            {uploading ? (
+              <LoadingBtn
+                width="45%"
+                btnText="Upload"
+                endIcon={<Send />}
+                pos="end"
+              />
+            ) : (
+              <Button
+                variant="contained"
+                color="success"
+                endIcon={<Send />}
+                sx={{ width: "45%" }}
+                onClick={matchFace}
+              >
+                Upload
+              </Button>
+            )}
             <Button
               variant="contained"
               color="error"

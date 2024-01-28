@@ -6,11 +6,14 @@ import { useState } from "react";
 import axios from "axios";
 import { getCookie } from "../../cookie/Csrf";
 import { ErrorAlert, SuccessAlert } from "../../partials/Alert";
+import { useDispatch } from "react-redux";
+import { login } from "../../../../state/auth";
 
 export default function Signin() {
   const navigate = useNavigate();
   const phone = useMediaQuery("(max-width:600px)");
   const [logging, setLogging] = useState(false);
+  const dispatch = useDispatch();
 
   const signin = async (values) => {
     setLogging(true);
@@ -26,11 +29,13 @@ export default function Signin() {
       },
     })
       .then((result) => {
-        console.log(result.data)
+        console.log(result.data);
+        dispatch(login({ user: result.data }));
         SuccessAlert("You're logged in!");
         navigate("/");
       })
       .catch((err) => {
+        console.log(err);
         setLogging(false);
         ErrorAlert(err.response.data.message);
       });
