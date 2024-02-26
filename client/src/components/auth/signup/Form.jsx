@@ -68,7 +68,7 @@ export default function Form({ phone, registering, signup }) {
       spacing={4}
       component="form"
       onSubmit={formik.handleSubmit}
-      sx={{ width: phone ? "88%" : "100%" }}
+      sx={{ width: "100%" }}
     >
       <Stack direction={phone ? "column" : "row"} spacing={phone ? 4 : 3}>
         <FormControl>

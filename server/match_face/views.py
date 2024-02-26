@@ -8,6 +8,9 @@ import requests
 from PIL import Image
 from io import BytesIO
 import numpy as np
+from pathlib import Path
+import openpyxl
+from datetime import datetime
 
 def decodeImg(img):
     return ur.urlopen(img)
@@ -39,6 +42,7 @@ class MatchFace(APIView):
                         
                     results = face_recognition.compare_faces([known_image_encoding], unknown_image_encoding)
                     if results[0] == True:
+                        take_attendance(datetime.today(), req.data["name"], req.data["email"], req.data["latitude"], req.data["longitude"], 1)
                         return Response({"res": "Face matched!"}, status=status.HTTP_200_OK)
                     else:
                         return Response({"res": "Face didn't match!"}, status=status.HTTP_400_BAD_REQUEST)
@@ -48,4 +52,36 @@ class MatchFace(APIView):
                 return Response({"res": "No face detected!"}, status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response({"res": "Something went wrong!"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+def create_sheet(month, year):
+    
+    if not Path(f"sheets/Attendance_sheet_{month}_{year}.xlsx").is_file():
+            workbook = openpyxl.Workbook()
+            sheet = workbook.active
+            sheet.title = f"Attendance_sheet_{month}_{year}"
+            sheet["A1"] = "Date"
+            sheet["B1"] = "Name"
+            sheet["C1"] = "Email"
+            sheet["D1"] = "Latitude"
+            sheet["E1"] = "Longitude"
+            sheet["F1"] = "Attendance"
+        
+            workbook.save(f"sheets/Attendance_sheet_{month}_{year}.xlsx")
+            return workbook, sheet
+    else:
+        workbook = openpyxl.load_workbook(f"sheets/Attendance_sheet_{month}_{year}.xlsx")
+        if workbook:
+            sheet = workbook.active
+            return workbook, sheet
+    
+    
+def take_attendance(date, name, email, latitude, longitude, user_data):
+        workbook, sheet = create_sheet(date.month, date.year)
+        sheet.append([date.strftime('%Y-%m-%d'), name, email, latitude, longitude, user_data])
+        
+        workbook.save(f"sheets/Attendance_sheet_{date.month}_{date.year}.xlsx")
+    
+    
+    
     

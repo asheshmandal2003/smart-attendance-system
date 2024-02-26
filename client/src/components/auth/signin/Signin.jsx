@@ -45,12 +45,12 @@ export default function Signin() {
     <FlexCenter>
       <Card
         sx={{
-          p: phone ? 0 : 5,
+          p: phone ? 3 : 4,
           pt: phone ? 3 : 5,
           pb: phone ? 4 : 5,
           mt: phone ? 5 : 6,
           mb: phone ? 0 : 6,
-          width: phone ? "90%" : 450,
+          width: phone ? "80%" : 400,
           display: "flex",
           justifyContent: "center",
           flexDirection: "column",

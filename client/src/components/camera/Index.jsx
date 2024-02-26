@@ -6,8 +6,10 @@ import { ErrorAlert, SuccessAlert } from "../partials/Alert";
 import { useSelector } from "react-redux";
 
 export default function Index() {
-  const [uploading, setUploading] = useState(false);
+  const [uploading, setUploading] = useState(() => false);
   const { email } = useSelector((state) => state.auth.user);
+  const { first_name } = useSelector((state) => state.auth.user);
+  const { last_name } = useSelector((state) => state.auth.user);
   const [img, setImg] = useState(null);
   const webcamRef = useRef(null);
 
@@ -16,29 +18,57 @@ export default function Index() {
     setImg(imgSrc);
   }, [webcamRef]);
 
+  async function parseLocation() {
+    return new Promise((resolve, reject) => {
+      try {
+        navigator.geolocation.getCurrentPosition(
+          async (data) => {
+            const coord = {
+              lat: data.coords.latitude,
+              lon: data.coords.longitude,
+            };
+            resolve(coord);
+          },
+          (err) => {
+            reject("Location is required!");
+          }
+        );
+      } catch (err) {
+        reject("Geolocation is not supported in this browser");
+      }
+    });
+  }
+
   async function matchFace() {
-    setUploading(true);
-    const formData = new FormData();
-    formData.append("img", img);
-    formData.append("email", email);
-    await axios({
-      method: "POST",
-      url: "http://localhost:8000/match-face",
-      data: formData,
-      withCredentials: true,
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFTOKEN": getCookie("csrftoken"),
-      },
-    })
-      .then((result) => {
-        SuccessAlert(result.data.res);
-        setUploading(false);
+    try {
+      const coords = await parseLocation();
+      const formData = new FormData();
+      formData.append("img", img);
+      formData.append("email", email);
+      formData.append("name", `${first_name} ${last_name}`);
+      formData.append("latitude", coords.lat);
+      formData.append("longitude", coords.lon);
+      setUploading(true);
+      await axios({
+        method: "POST",
+        url: "http://localhost:8000/match-face",
+        data: formData,
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFTOKEN": getCookie("csrftoken"),
+        },
       })
-      .catch((err) => {
-        ErrorAlert(err.response.data.res);
-        setUploading(false);
-      });
+        .then((result) => {
+          SuccessAlert(result.data.res);
+        })
+        .catch((err) => {
+          ErrorAlert(err.response.data.res);
+        });
+    } catch (err) {
+      ErrorAlert(err);
+    }
+    setUploading(false);
   }
   return (
     <>
