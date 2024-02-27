@@ -5,11 +5,14 @@ import axios from "axios";
 import { ErrorAlert, SuccessAlert } from "../partials/Alert";
 import { useSelector } from "react-redux";
 
+console.log(getCookie("csrftoken"))
+
 export default function Index() {
   const [uploading, setUploading] = useState(() => false);
-  const { email } = useSelector((state) => state.auth.user);
-  const { first_name } = useSelector((state) => state.auth.user);
-  const { last_name } = useSelector((state) => state.auth.user);
+  const [coords, setCoords] = useState(null);
+  const { first_name, last_name, email } = useSelector(
+    (state) => state.auth.user
+  );
   const [img, setImg] = useState(null);
   const webcamRef = useRef(null);
 
@@ -41,14 +44,18 @@ export default function Index() {
 
   async function matchFace() {
     try {
-      const coords = await parseLocation();
+      setUploading(true);
+      if (!coords) {
+        const coordinates = await parseLocation();
+        setCoords(coordinates);
+      }
       const formData = new FormData();
       formData.append("img", img);
       formData.append("email", email);
       formData.append("name", `${first_name} ${last_name}`);
       formData.append("latitude", coords.lat);
       formData.append("longitude", coords.lon);
-      setUploading(true);
+
       await axios({
         method: "POST",
         url: "http://localhost:8000/match-face",

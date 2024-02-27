@@ -25,6 +25,14 @@ class LoginView(APIView):
         user = authenticate(request=req, username=req.data['email'], password=req.data['password'])
         if user is not None:
             login(req, user)
-            userDetails = User.objects.filter(email=user).values("first_name", "last_name", "email", "img_path").first()
+            userDetails = User.objects.filter(email=user).values("id", "first_name", "last_name", "email", "img_path").first()
             return JsonResponse(userDetails, status=status.HTTP_200_OK)
         return JsonResponse({"message": "User doesn't exist!"}, status=status.HTTP_401_UNAUTHORIZED)
+
+def deleteUser(req):
+    try:
+        if(req.method == "DELETE"):
+            User.objects.filter(id=req.params["id"]).delete();
+            return JsonResponse({"message": "Deleted!"}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return JsonResponse({"message": f"{e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
