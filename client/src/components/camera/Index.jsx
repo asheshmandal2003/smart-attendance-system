@@ -5,8 +5,6 @@ import axios from "axios";
 import { ErrorAlert, SuccessAlert } from "../partials/Alert";
 import { useSelector } from "react-redux";
 
-console.log(getCookie("csrftoken"))
-
 export default function Index() {
   const [uploading, setUploading] = useState(() => false);
   const [coords, setCoords] = useState(null);

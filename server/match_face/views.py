@@ -12,6 +12,7 @@ from pathlib import Path
 import openpyxl
 from .models import Attendance
 from django.utils import timezone
+from .serializers import AttendanceDetailsSerializer
 
 def decodeImg(img):
     return ur.urlopen(img)
@@ -50,7 +51,6 @@ class MatchFace(APIView):
                     if results[0] == True:
                         user.last_attendance_taken = timezone.now()
                         user.save()
-                        # take_attendance(datetime.today(), req.data["name"], req.data["email"], req.data["latitude"], req.data["longitude"], 1)
                         mark_as_present(user=user, latitude= req.data["latitude"], longitude= req.data["longitude"])
                         return Response({"res": "Face matched!"}, status=status.HTTP_200_OK)
                     
@@ -66,7 +66,7 @@ class MatchFace(APIView):
 
 def mark_as_present(user, latitude, longitude): 
     try:
-        Attendance.objects.create(user= user, latitude= latitude, longitude= longitude, is_present= True)
+        Attendance.objects.create(user= user, latitude= latitude, longitude= longitude)
     except Exception as e:
         print(e)
 
@@ -95,7 +95,24 @@ def take_attendance(date, name, email, latitude, longitude, user_data):
         sheet.append([date.strftime('%Y-%m-%d'), name, email, latitude, longitude, user_data])
         
         workbook.save(f"sheets/Attendance_sheet_{date.month}_{date.year}.xlsx")
-    
-    
-    
+        
+class AttendanceDetails(APIView):
+    def get(self, req, id, format=None):
+        try:
+            if id:
+                attendance_data = Attendance.objects.filter(user=id);
+                if attendance_data:
+                    serializer = AttendanceDetailsSerializer(attendance_data, many=True)
+                    return Response(data=serializer.data, status=status.HTTP_200_OK)
+                else:
+                    raise Exception("User doesn't exists!")
+                
+            else:
+                raise Exception("Cannot find your user id!")
+        except Exception as e:
+            print(e)
+            return Response(data={"msg": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+        
     

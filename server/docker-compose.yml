@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=django-insecure-14cd0fr=w$uba4tzf@3ev8*bq8-1*@+d(0z38sbpio*bl_90@j
+      - DATABASE_ENGINE=django.db.backends.postgresql_psycopg2
+    depends_on:
+      - db
+  db:
+    image: postgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: pass
