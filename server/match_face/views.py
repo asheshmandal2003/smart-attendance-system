@@ -14,6 +14,10 @@ from .models import Attendance
 from django.utils import timezone
 from .serializers import AttendanceDetailsSerializer
 
+def isNullId(id):
+    if not id:
+        raise Exception("Please login again!")
+
 def decodeImg(img):
     return ur.urlopen(img)
 
@@ -25,8 +29,44 @@ def load_img_from_cloudinary(url):
 
 def IsSameDate(last_attendance_taken):
     today = timezone.now().date()
+    print(timezone.get_current_timezone())
+    print(last_attendance_taken, today)
     if last_attendance_taken == today:
         raise Exception("Attendance already taken!")
+    
+def mark_as_present(user, latitude, longitude): 
+    try:
+        Attendance.objects.create(user= user, latitude= latitude, longitude= longitude)
+    except Exception:
+        raise Exception("Failed to mark you as attend!")
+
+def create_sheet(month, year):
+    if not Path(f"sheets/Attendance_sheet_{month}_{year}.xlsx").is_file():
+            workbook = openpyxl.Workbook()
+            sheet = workbook.active
+            sheet.title = f"Attendance_sheet_{month}_{year}"
+            sheet["A1"] = "Date"
+            sheet["B1"] = "Name"
+            sheet["C1"] = "Email"
+            sheet["D1"] = "Latitude"
+            sheet["E1"] = "Longitude"
+        
+            workbook.save(f"sheets/Attendance_sheet_{month}_{year}.xlsx")
+            return workbook, sheet
+    else:
+        workbook = openpyxl.load_workbook(f"sheets/Attendance_sheet_{month}_{year}.xlsx")
+        if workbook:
+            sheet = workbook.active
+            return workbook, sheet
+    
+def take_attendance(data):
+    curr_time = timezone.now()
+    workbook, sheet = create_sheet(curr_time.month, curr_time.year)
+    
+    for row in data:
+        sheet.append([row['time'].strftime('%d-%m-%Y'), f"{row['user__first_name']} {row['user__last_name']}", row['user__email'], row['latitude'], row['longitude']])
+        
+    workbook.save(f"sheets/Attendance_sheet_{curr_time.month}_{curr_time.year}.xlsx")
     
 class MatchFace(APIView):
     def post(self, req):
@@ -61,58 +101,34 @@ class MatchFace(APIView):
             else:
                 return Response({"res": "No face detected!"}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
+            print(e)
             return Response({"res": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
         
-
-def mark_as_present(user, latitude, longitude): 
-    try:
-        Attendance.objects.create(user= user, latitude= latitude, longitude= longitude)
-    except Exception as e:
-        print(e)
-
-def create_sheet(month, year):
-    if not Path(f"sheets/Attendance_sheet_{month}_{year}.xlsx").is_file():
-            workbook = openpyxl.Workbook()
-            sheet = workbook.active
-            sheet.title = f"Attendance_sheet_{month}_{year}"
-            sheet["A1"] = "Date"
-            sheet["B1"] = "Name"
-            sheet["C1"] = "Email"
-            sheet["D1"] = "Latitude"
-            sheet["E1"] = "Longitude"
-            sheet["F1"] = "Attendance"
         
-            workbook.save(f"sheets/Attendance_sheet_{month}_{year}.xlsx")
-            return workbook, sheet
-    else:
-        workbook = openpyxl.load_workbook(f"sheets/Attendance_sheet_{month}_{year}.xlsx")
-        if workbook:
-            sheet = workbook.active
-            return workbook, sheet
-    
-def take_attendance(date, name, email, latitude, longitude, user_data):
-        workbook, sheet = create_sheet(date.month, date.year)
-        sheet.append([date.strftime('%Y-%m-%d'), name, email, latitude, longitude, user_data])
-        
-        workbook.save(f"sheets/Attendance_sheet_{date.month}_{date.year}.xlsx")
-        
-class AttendanceDetails(APIView):
+class AttendanceDetailsView(APIView):
     def get(self, req, id, format=None):
         try:
-            if id:
-                attendance_data = Attendance.objects.filter(user=id);
-                if attendance_data:
-                    serializer = AttendanceDetailsSerializer(attendance_data, many=True)
-                    return Response(data=serializer.data, status=status.HTTP_200_OK)
-                else:
-                    raise Exception("User doesn't exists!")
-                
+            isNullId(id=id)
+            attendance_data = Attendance.objects.filter(user=id);
+            if attendance_data:
+                serializer = AttendanceDetailsSerializer(attendance_data, many=True)
+                return Response(data=serializer.data, status=status.HTTP_200_OK)
             else:
-                raise Exception("Cannot find your user id!")
+                raise Exception("User doesn't exists!")
+                
         except Exception as e:
-            print(e)
             return Response(data={"msg": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
         
         
         
-    
+    def post(self, req, id, format=None):
+        try:
+            isNullId(id=id)
+            all_attendance_data = Attendance.objects.select_related('user').values( 'time','user__first_name', 'user__last_name', 'user__email', 'latitude', 'longitude')
+            attendance_list = list(all_attendance_data)
+            take_attendance(data=attendance_list)
+            Attendance.objects.all().delete()
+            return Response(data={"res": "Data added to execl file, check the sheets directory in your project!"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response(data={"res": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)

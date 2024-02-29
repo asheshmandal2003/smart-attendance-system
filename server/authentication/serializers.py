@@ -21,5 +21,4 @@ class UserSignupSerializer(UserProfileSerializer):
         return user
 
     class Meta(UserProfileSerializer.Meta):
-        fields = ['first_name', 'last_name', 'email', 'password', 'img_path', 'img_public_id']
-        
+        fields = ['id', 'first_name', 'last_name', 'email', 'password', 'img_path', 'img_public_id']

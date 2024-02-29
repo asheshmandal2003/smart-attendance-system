@@ -1,6 +1,6 @@
 import Camera from "./Camera";
 import { getCookie } from "../cookie/Csrf";
-import { useCallback, useState, useRef } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { ErrorAlert, SuccessAlert } from "../partials/Alert";
 import { useSelector } from "react-redux";
@@ -40,41 +40,48 @@ export default function Index() {
     });
   }
 
-  async function matchFace() {
-    try {
-      setUploading(true);
-      if (!coords) {
-        const coordinates = await parseLocation();
-        setCoords(coordinates);
-      }
-      const formData = new FormData();
-      formData.append("img", img);
-      formData.append("email", email);
-      formData.append("name", `${first_name} ${last_name}`);
-      formData.append("latitude", coords.lat);
-      formData.append("longitude", coords.lon);
+  async function matchFace(lat, lon) {
+    const formData = new FormData();
+    formData.append("img", img);
+    formData.append("email", email);
+    formData.append("name", `${first_name} ${last_name}`);
+    formData.append("latitude", lat);
+    formData.append("longitude", lon);
 
-      await axios({
-        method: "POST",
-        url: "http://localhost:8000/match-face",
-        data: formData,
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFTOKEN": getCookie("csrftoken"),
-        },
+    await axios({
+      method: "POST",
+      url: `${import.meta.env.VITE_BACKEND_BASE_URL}/match-face`,
+      data: formData,
+      withCredentials: true,
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFTOKEN": getCookie("csrftoken"),
+      },
+    })
+      .then((result) => {
+        setUploading(false);
+        return SuccessAlert(result.data.res);
       })
-        .then((result) => {
-          SuccessAlert(result.data.res);
-        })
-        .catch((err) => {
-          ErrorAlert(err.response.data.res);
-        });
-    } catch (err) {
-      ErrorAlert(err);
-    }
-    setUploading(false);
+      .catch((err) => {
+        setUploading(false);
+        return ErrorAlert(err.response.data.res);
+      });
   }
+
+  async function submitAttendance() {
+    setUploading(true);
+    if (!coords) {
+      await parseLocation()
+        .then((res) => {
+          setCoords(res);
+          return matchFace(res.lat, res.lon);
+        })
+        .catch((err) => ErrorAlert(err));
+    } else {
+      return matchFace(coords.lat, coords.lon);
+    }
+  }
+
   return (
     <>
       <Camera
@@ -82,7 +89,7 @@ export default function Index() {
         setImg={setImg}
         webcamRef={webcamRef}
         capture={capture}
-        matchFace={matchFace}
+        matchFace={submitAttendance}
         uploading={uploading}
       />
     </>

@@ -45,7 +45,7 @@ export default function Navbar() {
             variant="h6"
             component="div"
             noWrap
-            onClick={() => navigate("/task-manager")}
+            onClick={() => navigate("/")}
             sx={{
               mr: 2,
               display: {

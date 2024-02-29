@@ -9,7 +9,6 @@ import { ErrorAlert, SuccessAlert } from "../partials/Alert";
 
 export default function Home() {
   const { id } = useSelector((state) => state.auth.user);
-  console.log(id);
 
   async function fetchAttendanceDetails() {
     await axios
@@ -32,12 +31,29 @@ export default function Home() {
       });
   }
 
+  async function addAttendanceToExcel() {
+    await axios
+      .post(
+        `${import.meta.env.VITE_BACKEND_BASE_URL}/api/v1/user/${id}/attendance`,
+        null,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFTOKEN": getCookie("csrftoken"),
+          },
+        }
+      )
+      .then((res) => console.log(res.data))
+      .catch((err) => console.log(err.response));
+  }
+
   return (
     <Box>
       <Navbar />
       <FlexCenter sx={{ flexDirection: "column", alignItems: "center" }}>
         <Index />
         <Button onClick={fetchAttendanceDetails}>Fetch Attendance Data</Button>
+        <Button onClick={addAttendanceToExcel}>Add Attendance To Excel</Button>
       </FlexCenter>
     </Box>
   );

@@ -29,13 +29,11 @@ export default function Signin() {
       },
     })
       .then((result) => {
-        console.log(result.data);
         dispatch(login({ user: result.data }));
         SuccessAlert("You're logged in!");
         navigate("/");
       })
       .catch((err) => {
-        console.log(err);
         setLogging(false);
         ErrorAlert(err.response.data.message);
       });
