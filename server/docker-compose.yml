@@ -1,17 +1,26 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  web:
+  backend:
     build: .
     ports:
-      - "8000:8000"
+      - 8000:8000
     environment:
       - SECRET_KEY=django-insecure-14cd0fr=w$uba4tzf@3ev8*bq8-1*@+d(0z38sbpio*bl_90@j
       - DATABASE_ENGINE=django.db.backends.postgresql_psycopg2
+      - DATABASE_NAME=postgres
+      - DATABASE_USER=admin
+      - DATABASE_PASSWORD=pass
+      - DATABASE_HOST=172.18.0.2
+      - DATABASE_PORT=5432
+    command: >
+      sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     depends_on:
-      - db
+      - "db"
   db:
     image: postgres
+    ports:
+      - 5432:5432
     environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: admin
